@@ -77,7 +77,7 @@ namespace AnkiHelper.Services
 
         public async Task<string> AddCardAsync(string deckName, VocabDTO vocabDTO)
         {
-            var tags = new List<string> { $"type:{vocabDTO.WordType}" };
+            var tags = new List<string> { $"{vocabDTO.WordType}", $"{vocabDTO.Lesson.Replace('-', ' ')}" };
 
             var request = new
             {

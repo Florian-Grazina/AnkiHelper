@@ -45,28 +45,50 @@ namespace AnkiHelper
         [RelayCommand]
         private async Task AddCards()
         {
-            IsBusy = true;
-            IEnumerable<VocabDTO> vocabCollection = TryParseInputToVocabDTO();
+            try
+            {
+                IsBusy = true;
+                IEnumerable<VocabDTO> vocabCollection = TryParseInputToVocabDTO();
 
-            if (SelectedDeckId == null)
-                return;
+                if (SelectedDeckId == null)
+                    return;
 
-            foreach (VocabDTO vocab in vocabCollection)
-                await _ankiService.AddCardAsync(SelectedDeckId, vocab);
+                foreach (VocabDTO vocab in vocabCollection)
+                    await _ankiService.AddCardAsync(SelectedDeckId, vocab);
 
-            IsBusy = false;
+                await RefreshDecks();
+                
+                ErrorMessage = string.Empty;
+            }
+            catch(Exception ex)
+            {
+                ErrorMessage = ex.Message; 
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        [RelayCommand]
+        private void OpenAnki()
+        {
+            _ankiService.EnsureAnkiIsRunning();
         }
 
         [RelayCommand]
         private async Task RefreshDecks()
         {
             IsBusy = true;
-            DeckNameCollection.Clear();
             try
             {
+                string? selectedDeckId = SelectedDeckId;
+                DeckNameCollection.Clear();
+
                 foreach (string deckName in await _ankiService.GetDecksAsync())
                     DeckNameCollection.Add(deckName);
-                SelectedDeckId = DeckNameCollection.FirstOrDefault();
+
+                SelectedDeckId = DeckNameCollection.FirstOrDefault(dn => dn == selectedDeckId);
                 NewVocabsJson = GetPromptToCreateDico();
                 ErrorMessage = string.Empty;
             }
@@ -78,15 +100,6 @@ namespace AnkiHelper
             {
                 IsBusy = false;
             }
-        }
-
-        [RelayCommand]
-        private async Task Reload()
-        {
-            ErrorMessage = string.Empty;
-            IsBusy = true;
-            await Task.Delay(100);
-            IsBusy = false;
         }
         #endregion
 
@@ -126,6 +139,8 @@ namespace AnkiHelper
                 English (string)
 
                 Enum : Adj, Phra, N, V, Prep, Adv
+
+                if present in the document, add the kanji to the Japanese property
 
                 only respond with the collection, json format
                 """;

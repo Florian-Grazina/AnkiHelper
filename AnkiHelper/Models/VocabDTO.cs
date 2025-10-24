@@ -5,7 +5,7 @@ namespace AnkiHelper.Models
 {
     internal struct VocabDTO
     {
-        public string Lesson { get; }
+        public string Lesson { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public WordTypeEnum WordType{ get; set; }
         public string Japanese { get; set; }

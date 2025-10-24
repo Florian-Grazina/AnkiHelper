@@ -68,8 +68,8 @@
                      Cursor="Hand">
             <Button Content="Add Cards"
                     Command="{Binding AddCardsCommand}" />
-            <Button Content="Reload"
-                    Command="{Binding ReloadCommand}" />
+            <Button Content="Open Anki"
+                    Command="{Binding OpenAnkiCommand}" />
         </UniformGrid>
 
         <Grid Grid.RowSpan="99"
