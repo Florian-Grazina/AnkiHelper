@@ -10,12 +10,80 @@
         Height="450"
         Width="400"
         Loaded="Window_Loaded">
-    <StackPanel>
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style TargetType="Button">
+            <Setter Property="Margin"
+                    Value="10" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="80" />
+        </Grid.ColumnDefinitions>
+        
         <ComboBox Margin="10"
-                  Height="30"
                   VerticalContentAlignment="Center"
                   FontSize="12"
                   FontWeight="Bold"
-                  ItemsSource="{Binding DeckNameCollection}"/>
-    </StackPanel>
+                  SelectedItem="{Binding SelectedDeckId, Mode=TwoWay}"
+                  ItemsSource="{Binding DeckNameCollection}" />
+
+        <Button Grid.Column="1"
+                Margin="10"
+                Content="Refresh"
+                Command="{Binding RefreshDecksCommand}" />
+
+        <TextBox Grid.Row="1"
+                 Grid.ColumnSpan="2"
+                 Margin="5"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 VerticalScrollBarVisibility="Visible"
+                 Text="{Binding NewVocabsJson}" />
+
+        <TextBlock Grid.Row="2"
+                   Grid.ColumnSpan="2"
+                   Background="IndianRed"
+                   Foreground="White"
+                   FontWeight="Bold"
+                   TextWrapping="Wrap"
+                   Text="{Binding ErrorMessage}" />
+
+        <UniformGrid Grid.Row="3"
+                     Grid.ColumnSpan="2 "
+                     Rows="1"
+                     Columns="4"
+                     Cursor="Hand">
+            <Button Content="Add Cards"
+                    Command="{Binding AddCardsCommand}" />
+            <Button Content="Reload"
+                    Command="{Binding ReloadCommand}" />
+        </UniformGrid>
+
+        <Grid Grid.RowSpan="99"
+              Grid.ColumnSpan="99"
+              Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}">
+            <Rectangle Fill="Black"
+                       Opacity="0.7" />
+
+            <TextBlock Foreground="White"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       FontSize="30"
+                       Text="Ca charg, g pa encor mi un loader qi tourn, flemme" />
+        </Grid>
+    </Grid>
 </Window>
