@@ -101,6 +101,68 @@ namespace AnkiHelper
                 IsBusy = false;
             }
         }
+
+        [RelayCommand]
+        private async Task FixTags()
+        {
+            try
+            {
+                IsBusy = true;
+                if (SelectedDeckId == null)
+                    return;
+                await _ankiService.FixLessonTagsAsync(SelectedDeckId);
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+
+        [RelayCommand]
+        private async Task DeleteAdjTag()
+        {
+            try
+            {
+                IsBusy = true;
+                if (SelectedDeckId == null)
+                    return;
+                await _ankiService.DeleteAdjTag(SelectedDeckId);
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
+        [RelayCommand]
+        private async Task AddCss()
+        {
+            try
+            {
+                IsBusy = true;
+                if (SelectedDeckId == null)
+                    return;
+                await _ankiService.ApplyModernCssToDeckAsync(SelectedDeckId);
+                ErrorMessage = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+            }
+            finally
+            {
+                IsBusy = false;
+            }
+        }
         #endregion
 
         #region public methods
@@ -140,7 +202,7 @@ namespace AnkiHelper
 
                 Enum : Adj, Phra, N, V, Prep, Adv
 
-                if present in the document, add the kanji to the Japanese property
+                Just read the document as is, and don't generate extra words
 
                 only respond with the collection, json format
                 """;

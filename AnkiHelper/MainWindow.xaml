@@ -64,12 +64,18 @@
         <UniformGrid Grid.Row="3"
                      Grid.ColumnSpan="2 "
                      Rows="1"
-                     Columns="4"
+                     Columns="5"
                      Cursor="Hand">
             <Button Content="Add Cards"
                     Command="{Binding AddCardsCommand}" />
             <Button Content="Open Anki"
                     Command="{Binding OpenAnkiCommand}" />
+            <Button Content="Delete Adj"
+                    Command="{Binding DeleteAdjTagCommand}" />
+            <Button Content="Fix tag"
+                    Command="{Binding FixTagsCommand}" />
+            <Button Content="Add CSS"
+                    Command="{Binding AddCssCommand}" />
         </UniformGrid>
 
         <Grid Grid.RowSpan="99"
