@@ -78,7 +78,7 @@ namespace AnkiHelper.Services
 
         public async Task<string> AddCardAsync(string deckName, VocabDTO vocabDTO)
         {
-            var tags = new List<string> { $"{vocabDTO.WordType}", $"{vocabDTO.Lesson}" };
+            var tags = new List<string> { $"{vocabDTO.Lesson}" };
 
             var request = new
             {
@@ -111,56 +111,56 @@ namespace AnkiHelper.Services
 
         public async Task DeleteAdjTag(string deckName)
         {
-            using var client = new HttpClient();
+            //using var client = new HttpClient();
 
-            // 1. get all note ids
-            var noteIds = await CallAsync<List<long>>(new
-            {
-                action = "findNotes",
-                version = 6,
-                @params = new { query = $"deck:\"{deckName}\"" }
-            });
+            //// 1. get all note ids
+            //var noteIds = await CallAsync<List<long>>(new
+            //{
+            //    action = "findNotes",
+            //    version = 6,
+            //    @params = new { query = $"deck:\"{deckName}\"" }
+            //});
 
-            if (noteIds.Count == 0) return;
+            //if (noteIds.Count == 0) return;
 
-            // 2. get note info
-            var notes = await CallAsync<List<JsonElement>>(new
-            {
-                action = "notesInfo",
-                version = 6,
-                @params = new { notes = noteIds }
-            });
+            //// 2. get note info
+            //var notes = await CallAsync<List<JsonElement>>(new
+            //{
+            //    action = "notesInfo",
+            //    version = 6,
+            //    @params = new { notes = noteIds }
+            //});
 
-            foreach (var note in notes)
-            {
-                var tags = note.GetProperty("tags").EnumerateArray()
-                    .Select(t => t.GetString())
-                    .ToList();
-                var id = note.GetProperty("noteId").GetInt64();
+            //foreach (var note in notes)
+            //{
+            //    var tags = note.GetProperty("tags").EnumerateArray()
+            //        .Select(t => t.GetString())
+            //        .ToList();
+            //    var id = note.GetProperty("noteId").GetInt64();
 
-                var tagsToRemove = tags.Where(t => !int.TryParse(t, out _));
-                if (!tagsToRemove.Any())
-                    continue;
+            //    var tagsToRemove = tags.Where(t => !int.TryParse(t, out _));
+            //    if (!tagsToRemove.Any())
+            //        continue;
 
-                try
-                {
-                    // remove old numeric tags
-                    await CallAsync<object>(new
-                    {
-                        action = "removeTags",
-                        version = 6,
-                        @params = new
-                        {
-                            notes = new[] { id },
-                            tags = string.Join(" ", tagsToRemove)
-                        }
-                    });
-                }
-                catch
-                {
+            //    try
+            //    {
+            //        // remove old numeric tags
+            //        await CallAsync<object>(new
+            //        {
+            //            action = "removeTags",
+            //            version = 6,
+            //            @params = new
+            //            {
+            //                notes = new[] { id },
+            //                tags = string.Join(" ", tagsToRemove)
+            //            }
+            //        });
+            //    }
+            //    catch
+            //    {
 
-                }
-            }
+            //    }
+            //}
         }
 
         public async Task FixLessonTagsAsync(string deckName)
@@ -280,12 +280,12 @@ namespace AnkiHelper.Services
 
             // 3. Modern dark-gray CSS
             string css = @"
-.front, .back {
-    font-family: ""Segoe UI"", Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 28px !important;
-    font-weight: 700 !important;
-    color: #e5e5e5 !important;
-    background-color: #1e1e1e !important;
+.card {
+    font-family: ""Yu Gothic"", Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #e5e5e5;
+    background-color: #1e1e1e;
     text-align: center;
     line-height: 1.6;
     padding: 24px;

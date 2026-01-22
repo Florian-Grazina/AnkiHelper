@@ -202,7 +202,11 @@ namespace AnkiHelper
 
                 Enum : Adj, Phra, N, V, Prep, Adv
 
-                Just read the document as is, and don't generate extra words
+                Rules :
+                - Just read the document as is, and don't generate extra words
+                - Copy the Japanese column verbatim, including anything in parentheses
+                - Do not normalize, simplify, or remove furigana or parentheses
+                - Treat the document as plain text, not linguistic data
 
                 only respond with the collection, json format
                 """;
