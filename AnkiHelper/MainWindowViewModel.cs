@@ -20,12 +20,17 @@ namespace AnkiHelper
         {
             DeckNameCollection = [];
             _ankiService = new();
-            newVocabsJson = GetPromptToCreateDico();
         }
         #endregion
 
         #region observable properties
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(AddCardsCommand))]
+        [NotifyCanExecuteChangedFor(nameof(OpenAnkiCommand))]
+        [NotifyCanExecuteChangedFor(nameof(RefreshDecksCommand))]
+        [NotifyCanExecuteChangedFor(nameof(FixTagsCommand))]
+        [NotifyCanExecuteChangedFor(nameof(DeleteAdjTagCommand))]
+        [NotifyCanExecuteChangedFor(nameof(AddCssCommand))]
         private bool isBusy;
 
         [ObservableProperty]
@@ -38,11 +43,11 @@ namespace AnkiHelper
         private string? selectedDeckId;
 
         [ObservableProperty]
-        private string newVocabsJson;
+        private string newVocabsJson = string.Empty;
         #endregion
 
         #region commands
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanRunCommand))]
         private async Task AddCards()
         {
             try
@@ -50,14 +55,19 @@ namespace AnkiHelper
                 IsBusy = true;
                 IEnumerable<VocabDTO> vocabCollection = TryParseInputToVocabDTO();
 
-                if (SelectedDeckId == null)
+                // Captured once: the selection must not change mid-import.
+                string? deckId = SelectedDeckId;
+                if (deckId == null)
                     return;
 
                 foreach (VocabDTO vocab in vocabCollection)
-                    await _ankiService.AddCardAsync(SelectedDeckId, vocab);
+                {
+                    await _ankiService.AddCardAsync(deckId, vocab);
+                    await Task.Delay(25);
+                }
 
+                NewVocabsJson = string.Empty;
                 await RefreshDecks();
-                
                 ErrorMessage = string.Empty;
             }
             catch(Exception ex)
@@ -70,13 +80,13 @@ namespace AnkiHelper
             }
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanRunCommand))]
         private void OpenAnki()
         {
             _ankiService.EnsureAnkiIsRunning();
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanRunCommand))]
         private async Task RefreshDecks()
         {
             IsBusy = true;
@@ -89,7 +99,6 @@ namespace AnkiHelper
                     DeckNameCollection.Add(deckName);
 
                 SelectedDeckId = DeckNameCollection.FirstOrDefault(dn => dn == selectedDeckId);
-                NewVocabsJson = GetPromptToCreateDico();
                 ErrorMessage = string.Empty;
             }
             catch (Exception ex)
@@ -102,7 +111,7 @@ namespace AnkiHelper
             }
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanRunCommand))]
         private async Task FixTags()
         {
             try
@@ -123,7 +132,7 @@ namespace AnkiHelper
             }
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanRunCommand))]
         private async Task DeleteAdjTag()
         {
             try
@@ -143,7 +152,7 @@ namespace AnkiHelper
                 IsBusy = false;
             }
         }
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanRunCommand))]
         private async Task AddCss()
         {
             try
@@ -190,29 +199,8 @@ namespace AnkiHelper
         #endregion
 
         #region private methods
-        private string GetPromptToCreateDico()
-        {
-            string prompt =
-                $"""
-                C# : Create me a collection of object of model:
-                Lesson (string),
-                Type (collection of enum)
-                Japanese (string)
-                English (string)
-
-                Enum : Adj, Phra, N, V, Prep, Adv
-
-                Rules :
-                - Just read the document as is, and don't generate extra words
-                - Copy the Japanese column verbatim, including anything in parentheses
-                - Do not normalize, simplify, or remove furigana or parentheses
-                - Treat the document as plain text, not linguistic data
-
-                only respond with the collection, json format
-                """;
-
-            return prompt;
-        }
+        // Commands are disabled while another one runs (covers keyboard and access keys, not just the mouse).
+        private bool CanRunCommand() => !IsBusy;
 
         private IEnumerable<VocabDTO> TryParseInputToVocabDTO()
         {
